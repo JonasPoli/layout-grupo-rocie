@@ -8,6 +8,7 @@ use App\Entity\Category;
 use App\Entity\ContactMessage;
 use App\Entity\Product;
 use App\Entity\ProductFaq;
+use App\Entity\ProductImage;
 use App\Entity\ProductReview;
 use App\Entity\Representative;
 use App\Entity\Showroom;
@@ -51,7 +52,7 @@ class AppGenerateDummyDataCommand extends Command
 
         if ($input->getOption('clean')) {
             $io->info('Limpando dados antigos...');
-            foreach ([ProductReview::class, ProductFaq::class, ContactMessage::class, Product::class, Category::class, Brand::class, Showroom::class, Representative::class, Banner::class] as $cls) {
+            foreach ([ProductReview::class, ProductFaq::class, ProductImage::class, ContactMessage::class, Product::class, Category::class, Brand::class, Showroom::class, Representative::class, Banner::class] as $cls) {
                 $this->em->createQuery("DELETE FROM $cls e")->execute();
             }
         }
@@ -276,6 +277,22 @@ class AppGenerateDummyDataCommand extends Command
                     ->setReviewedAt(new \DateTimeImmutable("-{$daysAgo} days"))
                     ->setProduct($product);
                 $this->em->persist($review);
+            }
+
+            // Gallery images (3-5 per product)
+            $numImages = rand(3, 5);
+            for ($imgIdx = 0; $imgIdx < $numImages; $imgIdx++) {
+                $filename = $this->downloadImage('prod_', 600, 600);
+                if ($filename) {
+                    $pi = new ProductImage();
+                    $pi->setImage($filename)
+                       ->setAltText($name . ' — imagem ' . ($imgIdx + 1))
+                       ->setIsMain($imgIdx === 0)
+                       ->setSortOrder($imgIdx)
+                       ->setActive(true)
+                       ->setProduct($product);
+                    $this->em->persist($pi);
+                }
             }
 
             $this->em->persist($product);
