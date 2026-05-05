@@ -1,0 +1,82 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}<p class="text-sm text-gray-500">Visão geral do sistema</p>{% endblock %}
+
+{% block admin_body %}
+{# Stats #}
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="admin-stat-card"><div class="text-3xl font-bold text-primary mb-1">{{ stats.products }}</div><div class="text-sm text-gray-500">Produtos Ativos</div></div>
+    <div class="admin-stat-card"><div class="text-3xl font-bold text-primary mb-1">{{ stats.categories }}</div><div class="text-sm text-gray-500">Categorias</div></div>
+    <div class="admin-stat-card"><div class="text-3xl font-bold text-primary mb-1">{{ stats.brands }}</div><div class="text-sm text-gray-500">Marcas</div></div>
+    <div class="admin-stat-card"><div class="text-3xl font-bold text-primary mb-1">{{ stats.showrooms }}</div><div class="text-sm text-gray-500">Showrooms</div></div>
+    <div class="admin-stat-card"><div class="text-3xl font-bold text-primary mb-1">{{ stats.representatives }}</div><div class="text-sm text-gray-500">Representantes</div></div>
+    <div class="admin-stat-card"><div class="text-3xl font-bold text-primary mb-1">{{ stats.banners }}</div><div class="text-sm text-gray-500">Banners</div></div>
+    <div class="admin-stat-card">
+        <div class="text-3xl font-bold {% if stats.messages_new > 0 %}text-amber-500{% else %}text-primary{% endif %} mb-1">{{ stats.messages_new }}</div>
+        <div class="text-sm text-gray-500">Mensagens Novas</div>
+    </div>
+    <div class="admin-stat-card"><div class="text-3xl font-bold text-primary mb-1">{{ stats.messages_total }}</div><div class="text-sm text-gray-500">Total Mensagens</div></div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-6">
+    {# Últimas Mensagens #}
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="font-semibold text-gray-900">Últimas Mensagens</h2>
+            <a href="{{ path('admin_message_index') }}" class="text-xs text-primary hover:underline">Ver todas</a>
+        </div>
+        {% if latest_messages|length > 0 %}
+        <div class="space-y-3">
+            {% for msg in latest_messages %}
+            <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center shrink-0 text-primary font-semibold text-sm">{{ msg.name|first|upper }}</div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                        <p class="text-sm font-medium text-gray-900 truncate">{{ msg.name }}</p>
+                        {% if msg.status == 'nova' %}<span class="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">Nova</span>{% endif %}
+                    </div>
+                    <p class="text-xs text-gray-500 truncate">{{ msg.email }} {% if msg.subject %}— {{ msg.subject }}{% endif %}</p>
+                    {% if msg.createdAt %}<p class="text-xs text-gray-400 mt-0.5">{{ msg.createdAt|date('d/m/Y H:i') }}</p>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400 text-center py-8">Nenhuma mensagem ainda.</p>
+        {% endif %}
+    </div>
+
+    {# Produtos em Destaque #}
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="font-semibold text-gray-900">Produtos em Destaque</h2>
+            <a href="{{ path('admin_product_index') }}" class="text-xs text-primary hover:underline">Gerenciar</a>
+        </div>
+        {% if featured_products|length > 0 %}
+        <div class="space-y-3">
+            {% for product in featured_products %}
+            <div class="flex items-center gap-3">
+                {% if product.mainImage %}
+                    <img src="{{ asset('uploads/product/' ~ product.mainImage) }}" alt="{{ product.name }}" class="w-10 h-10 object-cover rounded-lg" loading="lazy">
+                {% else %}
+                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</p>
+                    <p class="text-xs text-gray-500">{% if product.mainCategory %}{{ product.mainCategory.name }}{% endif %}{% if product.internalCode %} · {{ product.internalCode }}{% endif %}</p>
+                </div>
+                <a href="{{ path('admin_product_edit', {id: product.id}) }}" class="text-xs text-primary hover:underline shrink-0">Editar</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400 text-center py-8">Nenhum produto em destaque.</p>
+        {% endif %}
+        <a href="{{ path('admin_product_new') }}" class="mt-5 w-full flex items-center justify-center gap-2 text-sm text-primary border border-primary/30 rounded-lg py-2.5 hover:bg-primary/5 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Novo Produto
+        </a>
+    </div>
+</div>
+{% endblock %}

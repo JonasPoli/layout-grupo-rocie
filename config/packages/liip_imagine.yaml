@@ -1,0 +1,44 @@
+liip_imagine:
+    driver: "gd"
+    filter_sets:
+        rocie_produto_card:
+            quality: 80
+            format: webp
+            filters:
+                thumbnail: { size: [600, 400], mode: outbound }
+
+        rocie_produto_hero:
+            quality: 85
+            format: webp
+            filters:
+                thumbnail: { size: [1200, 600], mode: inset }
+
+        rocie_categoria_card:
+            quality: 80
+            format: webp
+            filters:
+                thumbnail: { size: [400, 300], mode: outbound }
+
+        rocie_marca_logo:
+            quality: 85
+            format: webp
+            filters:
+                thumbnail: { size: [300, 150], mode: inset }
+
+        rocie_banner_hero:
+            quality: 85
+            format: webp
+            filters:
+                thumbnail: { size: [1280, 720], mode: outbound }
+
+        rocie_showroom_card:
+            quality: 80
+            format: webp
+            filters:
+                thumbnail: { size: [800, 500], mode: outbound }
+
+        rocie_thumb_small:
+            quality: 80
+            format: webp
+            filters:
+                thumbnail: { size: [96, 96], mode: outbound }

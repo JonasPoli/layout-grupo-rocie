@@ -1,0 +1,99 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}{{ banner ? 'Editar Banner' : 'Novo Banner' }}{% endblock %}
+{% block page_title %}{{ banner ? 'Editar Banner' : 'Novo Banner' }}{% endblock %}
+{% block page_subtitle %}<a href="{{ path('admin_banner_index') }}" class="text-sm text-primary hover:underline">← Voltar para Banners</a>{% endblock %}
+
+{% block admin_body %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<form method="POST" enctype="multipart/form-data" class="contents">
+
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 space-y-5">
+            <h2 class="font-semibold text-gray-900 pb-3 border-b border-gray-100">Conteúdo</h2>
+            <div class="form-group"><label class="form-label">Título *</label><input type="text" name="title" value="{{ banner ? banner.title : '' }}" required class="form-input" placeholder="Produtos que sua loja precisa"></div>
+            <div class="form-group"><label class="form-label">Subtítulo</label><input type="text" name="subtitle" value="{{ banner ? banner.subtitle : '' }}" class="form-input" placeholder="Texto secundário de apoio"></div>
+            <div class="form-group"><label class="form-label">Texto adicional</label><textarea name="text" rows="3" class="form-input" placeholder="Parágrafo opcional">{{ banner ? banner.text : '' }}</textarea></div>
+            <div class="grid grid-cols-2 gap-5">
+                <div class="form-group"><label class="form-label">Texto Botão Principal</label><input type="text" name="buttonText" value="{{ banner ? banner.buttonText : '' }}" class="form-input" placeholder="Ver Produtos"></div>
+                <div class="form-group"><label class="form-label">URL Botão Principal</label><input type="text" name="buttonUrl" value="{{ banner ? banner.buttonUrl : '' }}" class="form-input" placeholder="/produtos"></div>
+                <div class="form-group"><label class="form-label">Texto Botão Secundário</label><input type="text" name="secondaryButtonText" value="{{ banner ? banner.secondaryButtonText : '' }}" class="form-input" placeholder="Sobre Nós"></div>
+                <div class="form-group"><label class="form-label">URL Botão Secundário</label><input type="text" name="secondaryButtonUrl" value="{{ banner ? banner.secondaryButtonUrl : '' }}" class="form-input" placeholder="/a-empresa"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 space-y-5">
+            <h2 class="font-semibold text-gray-900 pb-3 border-b border-gray-100">Imagens</h2>
+            <div class="form-group">
+                <label class="form-label">Imagem Desktop (1280×720px recomendado)</label>
+                {% if banner and banner.desktopImage %}
+                    <img src="{{ asset('uploads/banner/' ~ banner.desktopImage) }}" class="w-full h-40 object-cover rounded-xl mb-3">
+                {% endif %}
+                <input type="file" name="desktopImageFile" accept="image/*" class="form-input py-2 text-sm">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Imagem Mobile (opcional)</label>
+                {% if banner and banner.mobileImage %}
+                    <img src="{{ asset('uploads/banner/' ~ banner.mobileImage) }}" class="w-48 h-28 object-cover rounded-xl mb-3">
+                {% endif %}
+                <input type="file" name="mobileImageFile" accept="image/*" class="form-input py-2 text-sm">
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        {# Preview #}
+        <div class="bg-primary rounded-xl overflow-hidden relative" style="min-height:180px" id="banner-preview">
+            <div class="absolute inset-0 bg-gradient-to-r from-primary to-primary/60"></div>
+            <div class="relative p-5 flex flex-col justify-center h-full min-h-[180px]">
+                <p class="text-rocie-accent text-xs font-bold uppercase tracking-wider mb-1">Preview</p>
+                <h3 class="text-white text-lg font-bold leading-tight" id="preview-title">{{ banner ? banner.title : 'Título do Banner' }}</h3>
+                <p class="text-blue-100 text-xs mt-1" id="preview-subtitle">{{ banner ? banner.subtitle : 'Subtítulo aqui' }}</p>
+                <div class="flex gap-2 mt-3">
+                    <span class="text-xs bg-white text-primary px-3 py-1.5 rounded-lg font-semibold" id="preview-btn">{{ banner ? (banner.buttonText ?? 'Botão') : 'Botão' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 space-y-4">
+            <h2 class="font-semibold text-gray-900">Configurações</h2>
+            <div class="form-group">
+                <label class="form-label">Página de Exibição</label>
+                <select name="displayPage" class="form-input">
+                    <option value="home" {% if not banner or banner.displayPage == 'home' %}selected{% endif %}>Home</option>
+                    <option value="produtos" {% if banner and banner.displayPage == 'produtos' %}selected{% endif %}>Produtos</option>
+                    <option value="sobre" {% if banner and banner.displayPage == 'sobre' %}selected{% endif %}>Sobre</option>
+                    <option value="contato" {% if banner and banner.displayPage == 'contato' %}selected{% endif %}>Contato</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ordem no Slide</label>
+                <input type="number" name="sortOrder" value="{{ banner ? banner.sortOrder : 0 }}" class="form-input" min="0">
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="active" value="1" {% if not banner or banner.active %}checked{% endif %} class="w-4 h-4 text-primary rounded">
+                <span class="text-sm font-medium">Banner Ativo</span>
+            </label>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <button type="submit" class="btn-primary justify-center">Salvar Banner</button>
+            <a href="{{ path('admin_banner_index') }}" class="btn-secondary justify-center text-sm">Cancelar</a>
+        </div>
+    </div>
+</form>
+</div>
+{% endblock %}
+
+{% block javascripts %}{{ parent() }}
+<script>
+document.querySelector('[name="title"]')?.addEventListener('input', function() {
+    document.getElementById('preview-title').textContent = this.value || 'Título do Banner';
+});
+document.querySelector('[name="subtitle"]')?.addEventListener('input', function() {
+    document.getElementById('preview-subtitle').textContent = this.value || 'Subtítulo aqui';
+});
+document.querySelector('[name="buttonText"]')?.addEventListener('input', function() {
+    document.getElementById('preview-btn').textContent = this.value || 'Botão';
+});
+</script>
+{% endblock %}

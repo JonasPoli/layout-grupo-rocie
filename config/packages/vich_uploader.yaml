@@ -1,0 +1,39 @@
+vich_uploader:
+    db_driver: orm
+
+    mappings:
+        rocie_uploads:
+            uri_prefix: /uploads/rocie
+            upload_destination: '%kernel.project_dir%/public/uploads/rocie'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: true
+
+        rocie_product_image:
+            uri_prefix: /uploads/product
+            upload_destination: '%kernel.project_dir%/public/uploads/product'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: true
+
+        rocie_category_image:
+            uri_prefix: /uploads/category
+            upload_destination: '%kernel.project_dir%/public/uploads/category'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: true
+
+        rocie_brand_logo:
+            uri_prefix: /uploads/brand
+            upload_destination: '%kernel.project_dir%/public/uploads/brand'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: true
+
+        rocie_showroom_image:
+            uri_prefix: /uploads/showroom
+            upload_destination: '%kernel.project_dir%/public/uploads/showroom'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: true
+
+        rocie_banner_image:
+            uri_prefix: /uploads/banner
+            upload_destination: '%kernel.project_dir%/public/uploads/banner'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: true

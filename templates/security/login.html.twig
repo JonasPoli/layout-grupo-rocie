@@ -1,0 +1,33 @@
+{% extends 'security/base.html.twig' %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-primary via-primary-dark to-rocie-dark flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <img src="{{ asset('images/logo.png') }}" alt="Grupo Rocie" class="h-16 w-auto mx-auto mb-4 brightness-0 invert" width="160" height="64">
+            <h1 class="text-2xl font-bold text-white font-headline">Área Administrativa</h1>
+            <p class="text-blue-200 mt-1 text-sm">Grupo Rocie</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Fazer login</h2>
+            {% if error %}
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+            {% endif %}
+            <form method="post" action="{{ path('app_login') }}">
+                <div class="form-group">
+                    <label for="username" class="form-label">Usuário</label>
+                    <input type="text" id="username" name="_username" value="{{ last_username }}" autocomplete="username" required class="form-input" placeholder="seu.usuario">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Senha</label>
+                    <input type="password" id="password" name="_password" autocomplete="current-password" required class="form-input" placeholder="••••••••">
+                </div>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <button type="submit" class="w-full btn-primary justify-center mt-2">Entrar</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

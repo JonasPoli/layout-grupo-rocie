@@ -1,0 +1,46 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Mensagens{% endblock %}
+{% block page_title %}Mensagens de Contato{% endblock %}
+{% block page_subtitle %}<p class="text-sm text-gray-500">{{ messages|length }} mensagem(ns)</p>{% endblock %}
+
+{% block admin_body %}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-gray-100 flex gap-2 flex-wrap">
+        {% for label, val in {Todas: '', Novas: 'nova', 'Em Atendimento': 'em_atendimento', Respondidas: 'respondida', Arquivadas: 'arquivada'} %}
+        <a href="{{ path('admin_message_index', val ? {status: val} : {}) }}"
+           class="text-sm px-4 py-2 rounded-lg font-medium transition-colors {% if current_status == val %}bg-primary text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+    <table class="admin-table">
+        <thead><tr><th>Remetente</th><th>Assunto</th><th>Data</th><th>Status</th><th class="w-20">Ações</th></tr></thead>
+        <tbody>
+        {% for msg in messages %}
+        <tr class="{% if msg.status == 'nova' %}bg-amber-50/40{% endif %}">
+            <td>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold text-sm">{{ msg.name|first|upper }}</div>
+                    <div>
+                        <p class="font-medium text-gray-900">{{ msg.name }}</p>
+                        <p class="text-xs text-gray-400">{{ msg.email }}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="text-sm text-gray-700">{{ msg.subject|default('—') }}</td>
+            <td class="text-xs text-gray-500 whitespace-nowrap">{{ msg.createdAt ? msg.createdAt|date('d/m/Y H:i') : '—' }}</td>
+            <td>
+                {% if msg.status == 'nova' %}<span class="badge-destaque">Nova</span>
+                {% elseif msg.status == 'em_atendimento' %}<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">Atendendo</span>
+                {% elseif msg.status == 'respondida' %}<span class="badge-novo">Respondida</span>
+                {% else %}<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Arquivada</span>{% endif %}
+            </td>
+            <td><a href="{{ path('admin_message_show', {id: msg.id}) }}" class="text-xs bg-primary/10 text-primary hover:bg-primary hover:text-white px-3 py-1.5 rounded-lg transition-colors font-medium">Ver</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center py-16 text-gray-400">Nenhuma mensagem.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

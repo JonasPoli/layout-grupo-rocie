@@ -1,0 +1,73 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Produtos{% endblock %}
+{% block page_title %}Produtos{% endblock %}
+{% block page_subtitle %}<p class="text-sm text-gray-500">{{ products|length }} produto(s) cadastrado(s)</p>{% endblock %}
+
+{% block admin_body %}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+        <form method="GET" class="flex gap-2 flex-1 min-w-0 max-w-sm">
+            <input type="text" name="q" value="{{ search }}" placeholder="Buscar produto..." class="form-input text-sm flex-1">
+            <button type="submit" class="btn-primary py-2 px-4 text-sm">Buscar</button>
+        </form>
+        <a href="{{ path('admin_product_new') }}" class="btn-primary text-sm whitespace-nowrap">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Novo Produto
+        </a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th class="w-16">Foto</th>
+                    <th>Nome</th>
+                    <th>Código</th>
+                    <th>Categoria</th>
+                    <th>Marca</th>
+                    <th>Status</th>
+                    <th class="w-32">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        {% if product.mainImage %}
+                            <img src="{{ asset('uploads/product/' ~ product.mainImage) }}" class="w-12 h-12 object-cover rounded-lg" loading="lazy">
+                        {% else %}
+                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <p class="font-medium text-gray-900">{{ product.name }}</p>
+                        {% if product.shortDescription %}<p class="text-xs text-gray-400 mt-0.5 line-clamp-1">{{ product.shortDescription }}</p>{% endif %}
+                    </td>
+                    <td class="text-xs text-gray-500">{{ product.internalCode }}</td>
+                    <td class="text-xs text-gray-600">{{ product.mainCategory ? product.mainCategory.name : '—' }}</td>
+                    <td class="text-xs text-gray-600">{{ product.brand ? product.brand.name : '—' }}</td>
+                    <td>
+                        <div class="flex flex-wrap gap-1">
+                            {% if product.active %}<span class="badge-novo">Ativo</span>{% else %}<span class="badge-promo">Inativo</span>{% endif %}
+                            {% if product.isFeatured %}<span class="badge-destaque">Destaque</span>{% endif %}
+                            {% if product.isNew %}<span class="badge-novo">Novo</span>{% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex gap-2">
+                            <a href="{{ path('admin_product_edit', {id: product.id}) }}" class="text-xs bg-primary/10 text-primary hover:bg-primary hover:text-white px-3 py-1.5 rounded-lg transition-colors font-medium">Editar</a>
+                            <form method="POST" action="{{ path('admin_product_delete', {id: product.id}) }}" onsubmit="return confirm('Excluir este produto?')">
+                                <button type="submit" class="text-xs bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-lg transition-colors font-medium">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center py-16 text-gray-400">Nenhum produto encontrado. <a href="{{ path('admin_product_new') }}" class="text-primary hover:underline">Cadastrar</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Banners{% endblock %}
+{% block page_title %}Banners{% endblock %}
+{% block page_subtitle %}<p class="text-sm text-gray-500">{{ banners|length }} banner(s) cadastrado(s)</p>{% endblock %}
+
+{% block admin_body %}
+
+{# Preview do Slide #}
+{% if banners|length > 0 %}
+<div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+    <h2 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Preview do Slide
+    </h2>
+    <div class="relative overflow-hidden rounded-xl bg-primary" id="banner-slider" style="min-height:280px">
+        {% for banner in banners %}{% if banner.active %}
+        <div class="banner-slide {% if loop.first %}opacity-100{% else %}opacity-0 absolute inset-0{% endif %} transition-opacity duration-700"
+             data-index="{{ loop.index0 }}">
+            {% if banner.desktopImage %}
+                <img src="{{ asset('uploads/banner/' ~ banner.desktopImage) }}"
+                     class="absolute inset-0 w-full h-full object-cover" alt="{{ banner.title }}">
+            {% endif %}
+            <div class="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/40"></div>
+            <div class="relative p-8 flex flex-col justify-center h-full min-h-[280px]">
+                <p class="text-rocie-accent text-xs font-bold uppercase tracking-widest mb-2">Slide {{ loop.index }}</p>
+                <h3 class="text-white text-2xl font-bold font-headline mb-2">{{ banner.title }}</h3>
+                {% if banner.subtitle %}<p class="text-blue-100 text-sm mb-4">{{ banner.subtitle }}</p>{% endif %}
+                <div class="flex gap-3">
+                    {% if banner.buttonText %}<span class="text-xs bg-white text-primary px-4 py-2 rounded-lg font-semibold">{{ banner.buttonText }}</span>{% endif %}
+                    {% if banner.secondaryButtonText %}<span class="text-xs border border-white text-white px-4 py-2 rounded-lg font-semibold">{{ banner.secondaryButtonText }}</span>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}{% endfor %}
+        {# Controles #}
+        <button id="prev-slide" class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white transition-colors z-10">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button id="next-slide" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white transition-colors z-10">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+        {# Dots #}
+        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10" id="slider-dots">
+            {% for banner in banners %}{% if banner.active %}
+            <button class="slide-dot w-2 h-2 rounded-full transition-all {% if loop.first %}bg-white w-5{% else %}bg-white/50{% endif %}" data-index="{{ loop.index0 }}"></button>
+            {% endif %}{% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# Lista de Banners #}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-gray-100 flex justify-end">
+        <a href="{{ path('admin_banner_new') }}" class="btn-primary text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Novo Banner
+        </a>
+    </div>
+    <table class="admin-table">
+        <thead><tr><th class="w-28">Preview</th><th>Título</th><th>Subtítulo</th><th>Página</th><th>Ordem</th><th>Status</th><th class="w-24">Ações</th></tr></thead>
+        <tbody>
+        {% for banner in banners %}
+        <tr>
+            <td>
+                {% if banner.desktopImage %}
+                    <img src="{{ asset('uploads/banner/' ~ banner.desktopImage) }}" class="w-24 h-14 object-cover rounded-lg" loading="lazy">
+                {% else %}
+                    <div class="w-24 h-14 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400">Sem imagem</div>
+                {% endif %}
+            </td>
+            <td><p class="font-medium text-gray-900">{{ banner.title }}</p>{% if banner.buttonText %}<p class="text-xs text-gray-400 mt-0.5">Botão: {{ banner.buttonText }}</p>{% endif %}</td>
+            <td class="text-sm text-gray-500 max-w-xs">{{ banner.subtitle|default('—')|slice(0,60) }}</td>
+            <td><span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md font-mono">{{ banner.displayPage|default('home') }}</span></td>
+            <td class="text-sm text-gray-500">{{ banner.sortOrder }}</td>
+            <td>{% if banner.active %}<span class="badge-novo">Ativo</span>{% else %}<span class="badge-promo">Inativo</span>{% endif %}</td>
+            <td class="flex gap-2">
+                <a href="{{ path('admin_banner_edit', {id: banner.id}) }}" class="text-xs bg-primary/10 text-primary hover:bg-primary hover:text-white px-3 py-1.5 rounded-lg transition-colors font-medium">Editar</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center py-12 text-gray-400">Nenhum banner. <a href="{{ path('admin_banner_new') }}" class="text-primary">Cadastrar</a></td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block javascripts %}{{ parent() }}
+<script>
+(function() {
+    const slides = document.querySelectorAll('.banner-slide');
+    const dots = document.querySelectorAll('.slide-dot');
+    if (!slides.length) return;
+    let current = 0;
+    let timer;
+
+    function goTo(n) {
+        slides[current].classList.remove('opacity-100');
+        slides[current].classList.add('opacity-0', 'absolute', 'inset-0');
+        dots[current]?.classList.remove('bg-white', 'w-5');
+        dots[current]?.classList.add('bg-white/50');
+        current = (n + slides.length) % slides.length;
+        slides[current].classList.add('opacity-100');
+        slides[current].classList.remove('opacity-0', 'absolute', 'inset-0');
+        dots[current]?.classList.add('bg-white', 'w-5');
+        dots[current]?.classList.remove('bg-white/50');
+    }
+
+    function start() { timer = setInterval(() => goTo(current + 1), 4000); }
+    function reset() { clearInterval(timer); start(); }
+
+    document.getElementById('next-slide')?.addEventListener('click', () => { goTo(current + 1); reset(); });
+    document.getElementById('prev-slide')?.addEventListener('click', () => { goTo(current - 1); reset(); });
+    dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); reset(); }));
+    start();
+})();
+</script>
+{% endblock %}

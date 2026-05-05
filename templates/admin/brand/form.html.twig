@@ -1,0 +1,30 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}{{ brand ? 'Editar Marca' : 'Nova Marca' }}{% endblock %}
+{% block page_title %}{{ brand ? 'Editar: ' ~ brand.name : 'Nova Marca' }}{% endblock %}
+{% block page_subtitle %}<a href="{{ path('admin_brand_index') }}" class="text-sm text-primary hover:underline">← Voltar para Marcas</a>{% endblock %}
+
+{% block admin_body %}
+<div class="max-w-2xl">
+<form method="POST" enctype="multipart/form-data">
+    <div class="bg-white rounded-xl shadow-sm p-6 space-y-5">
+        <div class="form-group"><label class="form-label">Nome *</label><input type="text" name="name" value="{{ brand ? brand.name : '' }}" required class="form-input"></div>
+        <div class="form-group"><label class="form-label">Slug</label><input type="text" name="slug" value="{{ brand ? brand.slug : '' }}" class="form-input font-mono"></div>
+        <div class="form-group"><label class="form-label">Descrição</label><textarea name="shortDescription" rows="3" class="form-input">{{ brand ? brand.shortDescription : '' }}</textarea></div>
+        <div class="form-group"><label class="form-label">Site Oficial</label><input type="url" name="officialWebsite" value="{{ brand ? brand.officialWebsite : '' }}" class="form-input" placeholder="https://"></div>
+        <div class="form-group"><label class="form-label">Logo</label>
+            {% if brand and brand.logo %}<img src="{{ asset('uploads/brand/' ~ brand.logo) }}" class="h-16 object-contain mb-3 p-2 bg-gray-50 rounded-lg">{% endif %}
+            <input type="file" name="logoFile" accept="image/*" class="form-input py-2 text-sm">
+        </div>
+        <div class="form-group"><label class="form-label">Ordem</label><input type="number" name="sortOrder" value="{{ brand ? brand.sortOrder : 0 }}" class="form-input"></div>
+        <div class="flex gap-6">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="active" value="1" {% if not brand or brand.active %}checked{% endif %} class="w-4 h-4 text-primary rounded"><span class="text-sm font-medium">Ativa</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="showOnHome" value="1" {% if brand and brand.showOnHome %}checked{% endif %} class="w-4 h-4 text-primary rounded"><span class="text-sm font-medium">Exibir na Home</span></label>
+        </div>
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="btn-primary">Salvar</button>
+            <a href="{{ path('admin_brand_index') }}" class="btn-secondary">Cancelar</a>
+        </div>
+    </div>
+</form>
+</div>
+{% endblock %}

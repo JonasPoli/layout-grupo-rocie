@@ -1,0 +1,148 @@
+{% extends 'pub/base.html.twig' %}
+
+{% block title %}Produtos | Grupo Rocie{% endblock %}
+
+{% block body %}
+{# Banner Interno #}
+<section class="bg-primary py-16 text-white">
+    <div class="container mx-auto">
+        <h1 class="text-4xl font-bold font-headline">Produtos</h1>
+        <p class="text-blue-100 mt-2">Veja nosso catálogo completo de produtos</p>
+        <nav class="text-sm mt-3 text-blue-200" aria-label="Breadcrumb">
+            <a href="{{ path('pub_home') }}" class="hover:text-white">Início</a> /
+            <span class="text-white">Produtos</span>
+        </nav>
+    </div>
+</section>
+
+<section class="section bg-rocie-gray-bg">
+    <div class="container mx-auto">
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            {# Filtros Sidebar #}
+            <aside class="lg:w-72 shrink-0">
+                <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+                    <h2 class="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wider">Filtrar Produtos</h2>
+
+                    <form method="GET" action="{{ path('pub_products') }}" id="filter-form">
+                        {# Busca #}
+                        <div class="mb-5">
+                            <label for="busca" class="form-label">Busca</label>
+                            <input type="text" id="busca" name="busca" value="{{ search }}"
+                                   placeholder="Nome, código..."
+                                   class="form-input">
+                        </div>
+
+                        {# Categoria #}
+                        <div class="mb-5">
+                            <label class="form-label">Categoria</label>
+                            <div class="space-y-1.5 max-h-48 overflow-y-auto">
+                                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded hover:bg-gray-50">
+                                    <input type="radio" name="categoria" value="" {% if not current_category %}checked{% endif %} class="text-primary" onchange="this.form.submit()">
+                                    <span class="text-sm text-gray-700">Todas</span>
+                                </label>
+                                {% for cat in categories %}
+                                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded hover:bg-gray-50">
+                                    <input type="radio" name="categoria" value="{{ cat.slug }}" {% if current_category == cat.slug %}checked{% endif %} class="text-primary" onchange="this.form.submit()">
+                                    <span class="text-sm text-gray-700">{{ cat.name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {# Marca #}
+                        <div class="mb-5">
+                            <label class="form-label">Marca</label>
+                            <select name="marca" class="form-input text-sm" onchange="this.form.submit()">
+                                <option value="">Todas as marcas</option>
+                                {% for brand in brands %}
+                                <option value="{{ brand.slug }}" {% if current_brand == brand.slug %}selected{% endif %}>{{ brand.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="destaque" value="1" {% if app.request.query.get('destaque') %}checked{% endif %} onchange="this.form.submit()" class="text-primary">
+                            <span class="text-sm text-gray-700">Somente Destaques</span>
+                        </label>
+
+                        {% if search or current_category or current_brand %}
+                        <a href="{{ path('pub_products') }}" class="block mt-4 text-xs text-center text-gray-500 hover:text-primary">Limpar filtros</a>
+                        {% endif %}
+                    </form>
+                </div>
+            </aside>
+
+            {# Grade de Produtos #}
+            <div class="flex-1">
+                <div class="flex items-center justify-between mb-6">
+                    <p class="text-sm text-gray-500">
+                        {{ products|length }} produto{{ products|length != 1 ? 's' : '' }} encontrado{{ products|length != 1 ? 's' : '' }}
+                    </p>
+                </div>
+
+                {% if products|length > 0 %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {% for product in products %}
+                    <article class="product-card group" id="product-{{ product.id }}">
+                        <a href="{{ path('pub_product_show', {slug: product.slug}) }}" class="block overflow-hidden">
+                            {% if product.mainImage %}
+                                <img src="{{ asset('uploads/product/' ~ product.mainImage) }}"
+                                     alt="{{ product.name }}"
+                                     class="product-card__image"
+                                     loading="lazy" decoding="async">
+                            {% else %}
+                                <div class="w-full h-56 flex items-center justify-center bg-gray-50">
+                                    <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                </div>
+                            {% endif %}
+                        </a>
+                        <div class="product-card__body">
+                            {% if product.mainCategory %}
+                                <p class="product-card__category">{{ product.mainCategory.name }}</p>
+                            {% endif %}
+                            <h3 class="product-card__title">
+                                <a href="{{ path('pub_product_show', {slug: product.slug}) }}" class="hover:text-primary transition-colors">
+                                    {{ product.name }}
+                                </a>
+                            </h3>
+                            {% if product.internalCode %}
+                                <p class="text-xs text-gray-400 mt-0.5">Cód: {{ product.internalCode }}</p>
+                            {% endif %}
+                            {% if product.shortDescription %}
+                                <p class="product-card__description">{{ product.shortDescription }}</p>
+                            {% endif %}
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                                {% if product.isNew %}<span class="badge-novo">Novo</span>{% endif %}
+                                {% if product.isFeatured %}<span class="badge-destaque">Destaque</span>{% endif %}
+                                {% if product.isPromotional %}<span class="badge-promo">Promoção</span>{% endif %}
+                            </div>
+                            <div class="product-card__footer">
+                                <a href="{{ path('pub_product_show', {slug: product.slug}) }}"
+                                   class="flex-1 btn-primary py-2 text-sm justify-center"
+                                   aria-label="Ver detalhes de {{ product.name }}">
+                                    Ver Detalhes
+                                </a>
+                                <a href="{{ path('pub_contact') }}?produto={{ product.name|url_encode }}"
+                                   class="btn-secondary py-2 px-3 text-sm"
+                                   aria-label="Solicitar orçamento de {{ product.name }}" title="Solicitar orçamento">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-24">
+                    <svg class="w-16 h-16 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    <h3 class="text-xl font-semibold text-gray-400 mb-2">Nenhum produto encontrado</h3>
+                    <p class="text-gray-400 text-sm mb-6">Tente alterar os filtros ou limpar a busca.</p>
+                    <a href="{{ path('pub_products') }}" class="btn-primary">Ver Todos os Produtos</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'pub/base.html.twig' %}
+{% block title %}Showrooms | Grupo Rocie{% endblock %}
+{% block body %}
+<section class="bg-primary py-16 text-white"><div class="container mx-auto"><h1 class="text-4xl font-bold font-headline">Showrooms</h1></div></section>
+<section class="section bg-rocie-gray-bg"><div class="container mx-auto">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {% for showroom in showrooms %}
+    <div class="showroom-card">
+      <h3 class="font-semibold text-gray-900">{{ showroom.name }}</h3>
+      <p class="text-sm text-primary">{{ showroom.city }}/{{ showroom.state }}</p>
+      {% if showroom.address %}<p class="text-xs text-gray-500 mt-2">{{ showroom.address }}, {{ showroom.number }}</p>{% endif %}
+      {% if showroom.phone %}<p class="text-xs text-gray-500">{{ showroom.phone }}</p>{% endif %}
+      {% if showroom.openingHours %}<p class="text-xs text-gray-500 mt-1">{{ showroom.openingHours }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div></section>
+{% endblock %}

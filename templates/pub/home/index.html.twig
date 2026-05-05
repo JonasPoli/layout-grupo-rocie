@@ -1,0 +1,382 @@
+{% extends 'pub/base.html.twig' %}
+{% block title %}Grupo Rocie — Produtos para sua loja e revenda{% endblock %}
+
+{% block head_extra %}
+<style>
+/* ── Blob Blur Animations ── */
+@keyframes blob-float-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(30px, -40px) scale(1.08); }
+    66%       { transform: translate(-20px, 20px) scale(0.95); }
+}
+@keyframes blob-float-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(-35px, 25px) scale(1.06); }
+    66%       { transform: translate(20px, -30px) scale(0.97); }
+}
+@keyframes blob-float-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%       { transform: translate(15px, 35px) scale(1.05); }
+}
+.blob { position: absolute; border-radius: 9999px; pointer-events: none; will-change: transform; }
+.blob-1 { animation: blob-float-1 9s ease-in-out infinite; }
+.blob-2 { animation: blob-float-2 12s ease-in-out infinite; animation-delay: -3s; }
+.blob-3 { animation: blob-float-3 15s ease-in-out infinite; animation-delay: -6s; }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── HERO SLIDER ── #}
+<section class="hero bg-primary relative overflow-hidden" id="home-hero" style="min-height:680px">
+
+    {# ── BOX BLUR — Geometric background blobs ── #}
+    {# Blob 1: grande amarelo/laranja topo-direita — destaque #}
+    <div class="blob blob-1" style="
+        width: 520px; height: 520px;
+        top: -120px; right: -100px;
+        background: radial-gradient(circle, rgba(245,166,35,0.35) 0%, rgba(245,166,35,0) 70%);
+        filter: blur(72px);
+        z-index: 2;
+    "></div>
+    {# Blob 2: azul-claro médio inferior-esquerda — suporte #}
+    <div class="blob blob-2" style="
+        width: 600px; height: 600px;
+        bottom: -200px; left: -150px;
+        background: radial-gradient(circle, rgba(100,160,255,0.25) 0%, rgba(100,160,255,0) 70%);
+        filter: blur(90px);
+        z-index: 2;
+    "></div>
+    {# Blob 3: branco no centro — brilho central sutil #}
+    <div class="blob blob-3" style="
+        width: 350px; height: 350px;
+        top: 40%; left: 45%;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+        filter: blur(60px);
+        z-index: 2;
+    "></div>
+
+    {# slides #}
+    {% if banners|length > 0 %}
+        {% for banner in banners %}
+        <div class="banner-slide absolute inset-0 transition-opacity duration-700 {% if loop.first %}opacity-100 z-10{% else %}opacity-0 z-0{% endif %}">
+            {% if banner.desktopImage %}
+            <img src="{{ asset('uploads/banner/' ~ banner.desktopImage) }}" alt="{{ banner.title }}"
+                 class="absolute inset-0 w-full h-full object-cover" fetchpriority="{{ loop.first ? 'high' : 'auto' }}" loading="{{ loop.first ? 'eager' : 'lazy' }}">
+            {% endif %}
+            <div class="hero-overlay"></div>
+            <div class="relative z-10 container mx-auto py-32 px-4 xl:px-0 flex items-center h-full" style="min-height:680px">
+                <div class="max-w-2xl">
+                    <span class="inline-block bg-rocie-accent/90 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-5 animate-fade-in">
+                        Grupo Rocie Atacado
+                    </span>
+                    <h1 class="text-4xl lg:text-6xl font-bold font-headline leading-tight mb-5 text-white animate-fade-in-up">
+                        {{ banner.title|default('Produtos que sua loja precisa') }}
+                    </h1>
+                    {% if banner.subtitle %}
+                    <p class="text-lg text-blue-100 mb-8 leading-relaxed animate-fade-in-up" style="animation-delay:.15s">{{ banner.subtitle }}</p>
+                    {% endif %}
+                    <div class="flex flex-wrap gap-4 animate-fade-in-up" style="animation-delay:.3s">
+                        <a href="{{ banner.buttonUrl|default(path('pub_products')) }}" class="btn-white">
+                            {{ banner.buttonText|default('Ver Produtos') }}
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                        {% if banner.secondaryButtonText %}
+                        <a href="{{ banner.secondaryButtonUrl|default('#') }}" class="border-2 border-white/60 text-white hover:bg-white hover:text-primary transition-all px-6 py-3 rounded-xl font-semibold flex items-center gap-2">
+                            {{ banner.secondaryButtonText }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {# Dots #}
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            {% for banner in banners %}
+            <button class="slide-dot {% if loop.first %}active{% endif %}" data-slide="{{ loop.index0 }}" aria-label="Slide {{ loop.index }}"></button>
+            {% endfor %}
+        </div>
+        {# Arrows #}
+        <button id="hero-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/15 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all border border-white/20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button id="hero-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/15 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all border border-white/20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+    {% else %}
+        <div class="hero-overlay"></div>
+        <div class="relative z-10 container mx-auto py-32 px-4 flex items-center" style="min-height:680px">
+            <div class="max-w-2xl">
+                <h1 class="text-5xl lg:text-6xl font-bold font-headline text-white leading-tight mb-5">Produtos que sua loja e revenda precisam</h1>
+                <p class="text-lg text-blue-100 mb-8">Variedade, marcas e atendimento para lojistas de todo o Brasil.</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{{ path('pub_products') }}" class="btn-white">Ver Produtos</a>
+                    <a href="{{ path('pub_about') }}" class="border-2 border-white/60 text-white hover:bg-white hover:text-primary transition-all px-6 py-3 rounded-xl font-semibold">Sobre Nós</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</section>
+
+{# ── TRUST BAR ── #}
+<div style="background:var(--clr-brand)" class="text-white py-4">
+    <div class="container mx-auto px-4 xl:px-0">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+            {% for item in [
+                {icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z', label: 'Qualidade Garantida'},
+                {icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', label: 'Atendimento Personalizado'},
+                {icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z', label: 'Cobertura Nacional'},
+                {icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', label: 'Grande Variedade'}
+            ] %}
+            <div class="flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 text-rocie-accent shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ item.icon }}"/></svg>
+                <span class="text-sm font-semibold">{{ item.label }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{# ── CATEGORIAS ── #}
+{% if categories|length > 0 %}
+<section class="section relative overflow-hidden" id="home-categories">
+
+    {# ── BOX BLUR — Categorias ── #}
+    {# Blob brand esquerda topo #}
+    <div class="blob blob-2" style="
+        width: 480px; height: 480px;
+        top: -80px; left: -120px;
+        background: radial-gradient(circle, rgba(28,61,118,0.10) 0%, rgba(28,61,118,0) 70%);
+        filter: blur(80px); z-index: 0;
+    "></div>
+    {# Blob accent direita baixo #}
+    <div class="blob blob-1" style="
+        width: 360px; height: 360px;
+        bottom: 0; right: -80px;
+        background: radial-gradient(circle, rgba(245,166,35,0.12) 0%, rgba(245,166,35,0) 70%);
+        filter: blur(70px); z-index: 0;
+    "></div>
+
+    <div class="container mx-auto px-4 xl:px-0 relative z-10">
+        <div class="text-center mb-12">
+            <p class="section-label">Explore</p>
+            <h2 class="section-title mt-2">Categorias de Produtos</h2>
+            <p class="section-subtitle mx-auto">Navegue pelas nossas linhas e encontre exatamente o que sua loja precisa</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {% for category in categories %}
+            <a href="{{ path('pub_products', {categoria: category.slug}) }}" class="category-card group" id="cat-{{ category.id }}">
+                <div class="relative overflow-hidden" style="aspect-ratio:4/3">
+                    {% if category.image %}
+                        <img src="{{ asset('uploads/category/' ~ category.image) }}" alt="{{ category.name }}"
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center" style="background:linear-gradient(135deg,rgba(28,61,118,.12),rgba(28,61,118,.06))">
+                            <svg class="w-14 h-14" style="color:rgba(28,61,118,.25)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        </div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 class="font-bold text-white text-base leading-tight group-hover:text-rocie-accent transition-colors">{{ category.name }}</h3>
+                        {% if category.shortDescription %}
+                        <p class="text-white/70 text-xs mt-0.5 line-clamp-1">{{ category.shortDescription }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="absolute top-3 right-3 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ── PRODUTOS EM DESTAQUE ── #}
+{% if featured_products is defined and featured_products|length > 0 %}
+<section class="section surface2" id="home-featured" style="background:var(--bg-surface2)">
+    <div class="container mx-auto px-4 xl:px-0">
+        <div class="flex items-end justify-between mb-12 flex-wrap gap-4">
+            <div>
+                <p class="section-label">Seleção Especial</p>
+                <h2 class="section-title mt-2">Produtos em Destaque</h2>
+            </div>
+            <a href="{{ path('pub_products') }}" class="btn-secondary text-sm">
+                Ver todos os produtos
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            <article class="product-card" id="product-{{ product.id }}">
+                <a href="{{ path('pub_product_detail', {slug: product.slug}) }}" class="block overflow-hidden" style="aspect-ratio:4/3">
+                    {% if product.mainImage %}
+                        <img src="{{ asset('uploads/product/' ~ product.mainImage) }}" alt="{{ product.name }}"
+                             class="product-card__image w-full h-full" loading="lazy">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center" style="background:var(--bg-surface2)">
+                            <svg class="w-12 h-12" style="color:var(--txt-subtle)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        </div>
+                    {% endif %}
+                </a>
+                <div class="product-card__body">
+                    <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                        {% if product.mainCategory %}<span class="product-card__category">{{ product.mainCategory.name }}</span>{% endif %}
+                        {% if product.isNew %}<span class="badge-novo">Novo</span>{% endif %}
+                        {% if product.isFeatured %}<span class="badge-destaque">Destaque</span>{% endif %}
+                    </div>
+                    <h3 class="product-card__title">
+                        <a href="{{ path('pub_product_detail', {slug: product.slug}) }}" style="color:var(--txt-heading)" class="hover:text-primary transition-colors">{{ product.name }}</a>
+                    </h3>
+                    {% if product.shortDescription %}
+                    <p class="product-card__description">{{ product.shortDescription }}</p>
+                    {% endif %}
+                    <div class="product-card__footer">
+                        <a href="{{ path('pub_product_detail', {slug: product.slug}) }}" class="btn-primary text-sm py-2 px-4 flex-1 justify-center">Ver detalhes</a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ── MARCAS ── #}
+{% if brands is defined and brands|length > 0 %}
+<section class="section" id="home-brands" style="background:var(--bg-surface)">
+    <div class="container mx-auto px-4 xl:px-0">
+        <div class="text-center mb-12">
+            <p class="section-label">Portfólio</p>
+            <h2 class="section-title mt-2">Marcas que Representamos</h2>
+            <p class="section-subtitle mx-auto">Trabalhamos com as melhores marcas do mercado</p>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-12">
+            {% for brand in brands %}
+            {% if brand.logo %}
+            <a href="{{ path('pub_products', {marca: brand.slug}) }}" title="{{ brand.name }}"
+               class="group flex items-center justify-center h-12 opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300">
+                <img src="{{ asset('uploads/brand/' ~ brand.logo) }}" alt="{{ brand.name }}" class="max-h-10 max-w-28 object-contain" loading="lazy">
+            </a>
+            {% else %}
+            <a href="{{ path('pub_products', {marca: brand.slug}) }}"
+               class="text-sm font-bold uppercase tracking-wider opacity-40 hover:opacity-80 transition-opacity" style="color:var(--txt-muted)">
+                {{ brand.name }}
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ── SHOWROOMS ── #}
+{% if showrooms is defined and showrooms|length > 0 %}
+<section class="section" id="home-showrooms" style="background:var(--bg-body)">
+    <div class="container mx-auto px-4 xl:px-0">
+        <div class="flex items-end justify-between mb-12 flex-wrap gap-4">
+            <div>
+                <p class="section-label">Visite-nos</p>
+                <h2 class="section-title mt-2">Nossos Showrooms</h2>
+            </div>
+            <a href="{{ path('pub_showroom') }}" class="btn-secondary text-sm">Ver todos</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {% for showroom in showrooms|slice(0,4) %}
+            <div class="showroom-card group" style="background:var(--card-bg)">
+                {% if showroom.mainImage %}
+                <div class="overflow-hidden rounded-lg mb-4" style="aspect-ratio:16/9">
+                    <img src="{{ asset('uploads/showroom/' ~ showroom.mainImage) }}" alt="{{ showroom.name }}"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                </div>
+                {% else %}
+                <div class="rounded-lg mb-4 flex items-center justify-center" style="aspect-ratio:16/9;background:linear-gradient(135deg,rgba(28,61,118,.15),rgba(28,61,118,.05))">
+                    <svg class="w-10 h-10" style="color:var(--clr-brand);opacity:.3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                </div>
+                {% endif %}
+                <h3 class="font-semibold text-base mb-1" style="color:var(--txt-heading)">{{ showroom.name }}</h3>
+                <p class="text-sm font-medium mb-2" style="color:var(--clr-brand)">{{ showroom.city }}/{{ showroom.state }}</p>
+                {% if showroom.address %}<p class="text-xs" style="color:var(--txt-muted)">{{ showroom.address }}, {{ showroom.number }}</p>{% endif %}
+                {% if showroom.phone %}<p class="text-xs mt-1" style="color:var(--txt-muted)">{{ showroom.phone }}</p>{% endif %}
+                {% if showroom.googleMapsUrl %}
+                <a href="{{ showroom.googleMapsUrl }}" target="_blank" class="inline-flex items-center gap-1 mt-3 text-xs font-semibold" style="color:var(--clr-brand)">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                    Ver no mapa
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ── CTA BAND ── #}
+<section class="py-20 relative overflow-hidden" id="home-cta" style="background:linear-gradient(135deg,var(--clr-brand) 0%,#0d2b5e 100%)">
+
+    {# ── BOX BLUR — CTA orbes ── #}
+    <div class="blob blob-1" style="
+        width: 600px; height: 600px;
+        top: -180px; right: -60px;
+        background: radial-gradient(circle, rgba(245,166,35,0.4) 0%, rgba(245,166,35,0) 65%);
+        filter: blur(80px); z-index: 1;
+    "></div>
+    <div class="blob blob-2" style="
+        width: 500px; height: 500px;
+        bottom: -150px; left: -100px;
+        background: radial-gradient(circle, rgba(99,179,237,0.35) 0%, rgba(99,179,237,0) 65%);
+        filter: blur(80px); z-index: 1;
+    "></div>
+    <div class="blob blob-3" style="
+        width: 280px; height: 280px;
+        top: 50%; left: 50%; transform: translate(-50%,-50%);
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        filter: blur(50px); z-index: 1;
+    "></div>
+    {# Grid pattern overlay #}
+    <div class="absolute inset-0" style="background-image:radial-gradient(circle at 1px 1px,white 1px,transparent 0);background-size:32px 32px;z-index:1;opacity:0.015"></div>
+
+    <div class="container mx-auto px-4 xl:px-0 text-center relative" style="z-index:5">
+        <p class="text-rocie-accent text-xs font-bold uppercase tracking-widest mb-3">Seja nosso parceiro</p>
+        <h2 class="text-3xl lg:text-5xl font-bold font-headline text-white mb-5">Quer revender nossos produtos?</h2>
+        <p class="text-blue-100 text-lg mb-8 max-w-xl mx-auto">Torne-se um representante ou lojista parceiro do Grupo Rocie e tenha acesso a condições especiais.</p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{{ path('pub_representative') }}" class="btn-accent px-8 py-4 text-base">Seja um Representante</a>
+            <a href="{{ path('pub_contact') }}" class="border-2 border-white/50 text-white hover:bg-white hover:text-primary transition-all px-8 py-4 rounded-xl font-semibold text-base">Fale Conosco</a>
+        </div>
+    </div>
+</section>
+
+{# ── HERO SLIDER JS ── #}
+{% block javascripts %}{{ parent() }}
+<script>
+(function(){
+    var slides = document.querySelectorAll('.banner-slide');
+    var dots   = document.querySelectorAll('.slide-dot');
+    if (slides.length < 2) return;
+    var cur = 0, timer;
+
+    function goTo(n) {
+        slides[cur].classList.remove('opacity-100','z-10');
+        slides[cur].classList.add('opacity-0','z-0');
+        dots[cur]?.classList.remove('active');
+        cur = (n + slides.length) % slides.length;
+        slides[cur].classList.remove('opacity-0','z-0');
+        slides[cur].classList.add('opacity-100','z-10');
+        dots[cur]?.classList.add('active');
+    }
+
+    function start() { timer = setInterval(function(){ goTo(cur + 1); }, 5000); }
+    function reset() { clearInterval(timer); start(); }
+
+    document.getElementById('hero-next')?.addEventListener('click', function(){ goTo(cur+1); reset(); });
+    document.getElementById('hero-prev')?.addEventListener('click', function(){ goTo(cur-1); reset(); });
+    dots.forEach(function(d,i){ d.addEventListener('click', function(){ goTo(i); reset(); }); });
+    start();
+})();
+</script>
+{% endblock %}
+
+{% endblock %}

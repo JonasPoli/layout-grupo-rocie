@@ -1,0 +1,132 @@
+{% extends 'pub/base.html.twig' %}
+{% block title %}{{ product.seoTitle|default(product.name) }} | Grupo Rocie{% endblock %}
+{% block meta_description %}{{ product.seoDescription|default(product.shortDescription) }}{% endblock %}
+
+{% block body %}
+<section class="section bg-rocie-gray-bg">
+  <div class="container mx-auto">
+    <nav class="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
+      <a href="{{ path('pub_home') }}" class="hover:text-primary">Início</a> /
+      <a href="{{ path('pub_products') }}" class="hover:text-primary">Produtos</a> /
+      {% if product.mainCategory %}<a href="{{ path('pub_products', {categoria: product.mainCategory.slug}) }}" class="hover:text-primary">{{ product.mainCategory.name }}</a> / {% endif %}
+      <span class="text-gray-700">{{ product.name }}</span>
+    </nav>
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div class="grid lg:grid-cols-2 gap-0">
+        {# Imagem #}
+        <div class="p-8 border-r border-gray-100">
+          <div class="aspect-square bg-gray-50 rounded-xl overflow-hidden">
+            {% if product.mainImage %}
+              <img src="{{ asset('uploads/product/' ~ product.mainImage) }}" alt="{{ product.name }}" class="w-full h-full object-contain" fetchpriority="high">
+            {% else %}
+              <div class="w-full h-full flex items-center justify-center"><svg class="w-24 h-24 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+            {% endif %}
+          </div>
+          {% if product.images|length > 1 %}
+          <div class="grid grid-cols-5 gap-2 mt-3">
+            {% for img in product.images %}{% if img.image %}<button onclick="document.querySelector('.aspect-square img')?.setAttribute('src', '{{ asset('uploads/product/' ~ img.image) }}')" class="aspect-square bg-gray-50 rounded-lg overflow-hidden border border-gray-200 hover:border-primary transition-colors"><img src="{{ asset('uploads/product/' ~ img.image) }}" alt="{{ img.altText }}" class="w-full h-full object-cover" loading="lazy"></button>{% endif %}{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {# Info #}
+        <div class="p-8">
+          <div class="flex flex-wrap gap-1.5 mb-3">
+            {% if product.mainCategory %}<span class="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded-full">{{ product.mainCategory.name }}</span>{% endif %}
+            {% if product.brand %}<span class="text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">{{ product.brand.name }}</span>{% endif %}
+            {% if product.isNew %}<span class="badge-novo">Novo</span>{% endif %}
+            {% if product.isFeatured %}<span class="badge-destaque">Destaque</span>{% endif %}
+          </div>
+          <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 font-headline mb-2">{{ product.name }}</h1>
+          {% if product.subtitle %}<p class="text-gray-500 mb-3">{{ product.subtitle }}</p>{% endif %}
+          {% if product.internalCode %}<p class="text-xs text-gray-400 mb-4">Cód: {{ product.internalCode }}{% if product.sku %} | SKU: {{ product.sku }}{% endif %}</p>{% endif %}
+          {% if product.summary %}
+            <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 mb-6"><p class="text-sm text-blue-800 leading-relaxed">{{ product.summary }}</p></div>
+          {% elseif product.shortDescription %}
+            <p class="text-gray-600 mb-6 leading-relaxed">{{ product.shortDescription }}</p>
+          {% endif %}
+          {% if product.variations|length > 0 %}
+          <div class="mb-6">
+            <p class="text-sm font-semibold text-gray-700 mb-3">Variações:</p>
+            <div class="flex flex-wrap gap-2">
+              {% for v in product.variations %}{% if v.active %}<span class="text-xs px-3 py-1.5 border border-gray-200 rounded-lg text-gray-700 hover:border-primary cursor-pointer transition-colors">{{ v.name }}{% if v.color %} — {{ v.color }}{% endif %}{% if v.size %}/{{ v.size }}{% endif %}</span>{% endif %}{% endfor %}
+            </div>
+          </div>
+          {% endif %}
+          <div class="flex flex-col sm:flex-row gap-3 mb-6">
+            <a href="{{ path('pub_contact') }}?produto={{ product.name|url_encode }}" class="btn-primary flex-1 justify-center">Solicitar Orçamento</a>
+            <a href="https://wa.me/5511999999999?text=Olá! Interesse em: {{ product.name|url_encode }}" target="_blank" class="btn-accent justify-center">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+              WhatsApp
+            </a>
+          </div>
+          {% if product.material or product.color or product.weight or product.dimensions %}
+          <div class="border-t border-gray-100 pt-5">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Especificações</h3>
+            <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              {% if product.material %}<dt class="text-gray-500">Material</dt><dd class="text-gray-800 font-medium">{{ product.material }}</dd>{% endif %}
+              {% if product.color %}<dt class="text-gray-500">Cor</dt><dd class="text-gray-800 font-medium">{{ product.color }}</dd>{% endif %}
+              {% if product.weight %}<dt class="text-gray-500">Peso</dt><dd class="text-gray-800 font-medium">{{ product.weight }}</dd>{% endif %}
+              {% if product.dimensions %}<dt class="text-gray-500">Dimensões</dt><dd class="text-gray-800 font-medium">{{ product.dimensions }}</dd>{% endif %}
+              {% if product.warranty %}<dt class="text-gray-500">Garantia</dt><dd class="text-gray-800 font-medium">{{ product.warranty }}</dd>{% endif %}
+            </dl>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {# Abas #}
+      {% if product.fullDescription or product.benefits or product.faqs|length > 0 %}
+      <div class="border-t border-gray-100 p-8">
+        <div class="flex gap-2 border-b border-gray-200 mb-6 overflow-x-auto" role="tablist">
+          {% if product.fullDescription %}<button role="tab" class="tab-btn active px-4 py-2 text-sm font-medium text-primary border-b-2 border-primary whitespace-nowrap" data-tab="descricao">Descrição</button>{% endif %}
+          {% if product.benefits or product.differentials %}<button role="tab" class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-primary border-b-2 border-transparent whitespace-nowrap" data-tab="beneficios">Benefícios</button>{% endif %}
+          {% if product.faqs|length > 0 %}<button role="tab" class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-primary border-b-2 border-transparent whitespace-nowrap" data-tab="faq">FAQ</button>{% endif %}
+        </div>
+        {% if product.fullDescription %}<div class="tab-content" id="tab-descricao"><div class="prose max-w-none text-gray-600">{{ product.fullDescription|raw }}</div></div>{% endif %}
+        {% if product.benefits or product.differentials %}<div class="tab-content hidden" id="tab-beneficios">{% if product.benefits %}<h4 class="font-semibold mb-3">Benefícios</h4><div class="prose max-w-none text-gray-600">{{ product.benefits|raw }}</div>{% endif %}{% if product.differentials %}<h4 class="font-semibold mb-3 mt-6">Diferenciais</h4><div class="prose max-w-none text-gray-600">{{ product.differentials|raw }}</div>{% endif %}</div>{% endif %}
+        {% if product.faqs|length > 0 %}<div class="tab-content hidden" id="tab-faq"><div class="space-y-4">{% for faq in product.faqs %}{% if faq.active %}<details class="border border-gray-200 rounded-xl"><summary class="flex items-center justify-between p-4 cursor-pointer font-medium text-gray-800 hover:text-primary">{{ faq.question }}</summary><div class="px-4 pb-4 text-sm text-gray-600">{{ faq.answer }}</div></details>{% endif %}{% endfor %}</div></div>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {# Relacionados #}
+    {% if related|length > 0 %}
+    <div class="mt-16">
+      <h2 class="text-2xl font-bold font-headline mb-8">Produtos Relacionados</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for p in related %}
+        <article class="product-card group">
+          <a href="{{ path('pub_product_show', {slug: p.slug}) }}" class="block overflow-hidden">
+            {% if p.mainImage %}<img src="{{ asset('uploads/product/' ~ p.mainImage) }}" alt="{{ p.name }}" class="product-card__image" loading="lazy">{% else %}<div class="w-full h-48 bg-gray-50 flex items-center justify-center"><svg class="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>{% endif %}
+          </a>
+          <div class="product-card__body">
+            <h3 class="product-card__title"><a href="{{ path('pub_product_show', {slug: p.slug}) }}" class="hover:text-primary">{{ p.name }}</a></h3>
+            <div class="product-card__footer"><a href="{{ path('pub_product_show', {slug: p.slug}) }}" class="btn-primary py-2 text-sm flex-1 justify-center" aria-label="Ver {{ p.name }}">Ver Detalhes</a></div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <div class="mt-16 bg-primary rounded-2xl p-10 text-center text-white">
+      <h2 class="text-2xl font-bold font-headline mb-3">Gostou deste produto?</h2>
+      <p class="text-blue-100 mb-6">Fale com nossa equipe e encontre o representante mais próximo de você.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="{{ path('pub_contact') }}" class="btn-white">Solicitar Atendimento</a>
+        <a href="{{ path('pub_representative') }}" class="border-2 border-white/50 text-white hover:bg-white hover:text-primary transition-all px-6 py-3 rounded-lg font-semibold">Encontrar Representante</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block javascripts %}{{ parent() }}
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('text-primary','border-primary'); b.classList.add('text-gray-500','border-transparent'); });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    this.classList.add('text-primary','border-primary'); this.classList.remove('text-gray-500','border-transparent');
+    const tab = document.getElementById('tab-' + this.dataset.tab);
+    if (tab) tab.classList.remove('hidden');
+  });
+});
+</script>
+{% endblock %}

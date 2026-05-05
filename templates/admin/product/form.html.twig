@@ -1,0 +1,127 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}{{ product ? 'Editar Produto' : 'Novo Produto' }}{% endblock %}
+{% block page_title %}{{ product ? 'Editar: ' ~ product.name : 'Novo Produto' }}{% endblock %}
+{% block page_subtitle %}<a href="{{ path('admin_product_index') }}" class="text-sm text-primary hover:underline">← Voltar para Produtos</a>{% endblock %}
+
+{% block admin_body %}
+<form method="POST" enctype="multipart/form-data">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    {# Coluna Principal #}
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="font-semibold text-gray-900 mb-5 pb-3 border-b border-gray-100">Informações Básicas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="md:col-span-2 form-group">
+                    <label class="form-label">Nome do Produto *</label>
+                    <input type="text" name="name" value="{{ product ? product.name : '' }}" required class="form-input" placeholder="Ex: Piscina Inflável Family">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Código Interno</label>
+                    <input type="text" name="internalCode" value="{{ product ? product.internalCode : '' }}" class="form-input" placeholder="ELP01001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">SKU</label>
+                    <input type="text" name="sku" value="{{ product ? product.sku : '' }}" class="form-input" placeholder="SKU-001">
+                </div>
+                <div class="md:col-span-2 form-group">
+                    <label class="form-label">Subtítulo</label>
+                    <input type="text" name="subtitle" value="{{ product ? product.subtitle : '' }}" class="form-input" placeholder="Descrição curta para o card">
+                </div>
+                <div class="md:col-span-2 form-group">
+                    <label class="form-label">Descrição Curta</label>
+                    <textarea name="shortDescription" rows="3" class="form-input">{{ product ? product.shortDescription : '' }}</textarea>
+                </div>
+                <div class="md:col-span-2 form-group">
+                    <label class="form-label">Descrição Completa</label>
+                    <textarea name="fullDescription" rows="8" class="form-input font-mono text-sm">{{ product ? product.fullDescription : '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="font-semibold text-gray-900 mb-5 pb-3 border-b border-gray-100">Especificações Técnicas</h2>
+            <div class="grid grid-cols-2 gap-5">
+                <div class="form-group"><label class="form-label">Material</label><input type="text" name="material" value="{{ product ? product.material : '' }}" class="form-input"></div>
+                <div class="form-group"><label class="form-label">Cor</label><input type="text" name="color" value="{{ product ? product.color : '' }}" class="form-input"></div>
+                <div class="form-group"><label class="form-label">Peso</label><input type="text" name="weight" value="{{ product ? product.weight : '' }}" class="form-input" placeholder="ex: 500g"></div>
+                <div class="form-group"><label class="form-label">Dimensões</label><input type="text" name="dimensions" value="{{ product ? product.dimensions : '' }}" class="form-input" placeholder="ex: 30x20x10cm"></div>
+                <div class="col-span-2 form-group"><label class="form-label">Garantia</label><input type="text" name="warranty" value="{{ product ? product.warranty : '' }}" class="form-input" placeholder="ex: 1 ano contra defeito de fabricação"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="font-semibold text-gray-900 mb-5 pb-3 border-b border-gray-100">SEO</h2>
+            <div class="space-y-4">
+                <div class="form-group"><label class="form-label">Título SEO</label><input type="text" name="seoTitle" value="{{ product ? product.seoTitle : '' }}" class="form-input" placeholder="Título para motores de busca"></div>
+                <div class="form-group"><label class="form-label">Descrição SEO</label><textarea name="seoDescription" rows="3" class="form-input" placeholder="Descrição para motores de busca (até 160 chars)">{{ product ? product.seoDescription : '' }}</textarea></div>
+            </div>
+        </div>
+    </div>
+
+    {# Sidebar #}
+    <div class="space-y-6">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="font-semibold text-gray-900 mb-4">Imagem Principal</h2>
+            {% if product and product.mainImage %}
+                <img src="{{ asset('uploads/product/' ~ product.mainImage) }}" class="w-full aspect-square object-cover rounded-xl mb-3" loading="lazy">
+            {% endif %}
+            <input type="file" name="mainImageFile" accept="image/*" class="form-input text-sm py-2">
+            <p class="text-xs text-gray-400 mt-1">JPG, PNG ou WebP. Mín. 600×600px.</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="font-semibold text-gray-900 mb-4">Classificação</h2>
+            <div class="form-group">
+                <label class="form-label">Categoria</label>
+                <select name="mainCategory" class="form-input">
+                    <option value="">— Sem categoria —</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product and product.mainCategory and product.mainCategory.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Marca</label>
+                <select name="brand" class="form-input">
+                    <option value="">— Sem marca —</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand.id }}" {% if product and product.brand and product.brand.id == brand.id %}selected{% endif %}>{{ brand.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ordem de Exibição</label>
+                <input type="number" name="sortOrder" value="{{ product ? product.sortOrder : 0 }}" class="form-input">
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="font-semibold text-gray-900 mb-4">Visibilidade</h2>
+            <div class="space-y-3">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="active" value="1" {% if not product or product.active %}checked{% endif %} class="w-4 h-4 text-primary rounded">
+                    <span class="text-sm text-gray-700 font-medium">Produto Ativo</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="isFeatured" value="1" {% if product and product.isFeatured %}checked{% endif %} class="w-4 h-4 text-primary rounded">
+                    <span class="text-sm text-gray-700 font-medium">Destaque</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="isNew" value="1" {% if product and product.isNew %}checked{% endif %} class="w-4 h-4 text-primary rounded">
+                    <span class="text-sm text-gray-700 font-medium">Novo</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <button type="submit" class="btn-primary justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                {{ product ? 'Salvar Alterações' : 'Cadastrar Produto' }}
+            </button>
+            <a href="{{ path('admin_product_index') }}" class="btn-secondary justify-center text-sm">Cancelar</a>
+        </div>
+    </div>
+</div>
+</form>
+{% endblock %}

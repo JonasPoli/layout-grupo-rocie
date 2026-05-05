@@ -1,0 +1,35 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Marcas{% endblock %}
+{% block page_title %}Marcas{% endblock %}
+{% block page_subtitle %}<p class="text-sm text-gray-500">{{ brands|length }} marca(s)</p>{% endblock %}
+
+{% block admin_body %}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-gray-100 flex justify-end">
+        <a href="{{ path('admin_brand_new') }}" class="btn-primary text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Nova Marca
+        </a>
+    </div>
+    <table class="admin-table">
+        <thead><tr><th class="w-16">Logo</th><th>Nome</th><th>Slug</th><th>Site</th><th>Status</th><th class="w-24">Ações</th></tr></thead>
+        <tbody>
+        {% for brand in brands %}
+        <tr>
+            <td>
+                {% if brand.logo %}<img src="{{ asset('uploads/brand/' ~ brand.logo) }}" class="h-8 max-w-24 object-contain">
+                {% else %}<div class="w-10 h-8 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">logo</div>{% endif %}
+            </td>
+            <td class="font-medium text-gray-900">{{ brand.name }}</td>
+            <td class="text-xs text-gray-500 font-mono">{{ brand.slug }}</td>
+            <td>{% if brand.officialWebsite %}<a href="{{ brand.officialWebsite }}" target="_blank" class="text-xs text-primary hover:underline">{{ brand.officialWebsite|slice(0,30) }}…</a>{% else %}—{% endif %}</td>
+            <td>{% if brand.active %}<span class="badge-novo">Ativa</span>{% else %}<span class="badge-promo">Inativa</span>{% endif %}{% if brand.showOnHome %}<span class="badge-destaque ml-1">Home</span>{% endif %}</td>
+            <td><a href="{{ path('admin_brand_edit', {id: brand.id}) }}" class="text-xs bg-primary/10 text-primary hover:bg-primary hover:text-white px-3 py-1.5 rounded-lg transition-colors font-medium">Editar</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center py-12 text-gray-400">Nenhuma marca. <a href="{{ path('admin_brand_new') }}" class="text-primary">Cadastrar</a></td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
