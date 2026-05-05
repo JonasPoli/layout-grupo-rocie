@@ -36,6 +36,10 @@
                     <label class="form-label">Descrição Completa</label>
                     <textarea name="fullDescription" rows="8" class="form-input font-mono text-sm">{{ product ? product.fullDescription : '' }}</textarea>
                 </div>
+                <div class="md:col-span-2 form-group">
+                    <label class="form-label">Sobre este item <small class="text-gray-400 font-normal">(um tópico por linha, exibido como bullets)</small></label>
+                    <textarea name="aboutItems" rows="6" class="form-input" placeholder="Material resistente e de alta qualidade&#10;Design ergonômico e funcional&#10;Fácil de limpar e manter">{{ product ? product.aboutItems : '' }}</textarea>
+                </div>
             </div>
         </div>
 
@@ -46,7 +50,12 @@
                 <div class="form-group"><label class="form-label">Cor</label><input type="text" name="color" value="{{ product ? product.color : '' }}" class="form-input"></div>
                 <div class="form-group"><label class="form-label">Peso</label><input type="text" name="weight" value="{{ product ? product.weight : '' }}" class="form-input" placeholder="ex: 500g"></div>
                 <div class="form-group"><label class="form-label">Dimensões</label><input type="text" name="dimensions" value="{{ product ? product.dimensions : '' }}" class="form-input" placeholder="ex: 30x20x10cm"></div>
+                <div class="form-group"><label class="form-label">Capacidade</label><input type="text" name="capacity" value="{{ product ? product.capacity : '' }}" class="form-input" placeholder="ex: 500ml"></div>
+                <div class="form-group"><label class="form-label">Embalagem</label><input type="text" name="packaging" value="{{ product ? product.packaging : '' }}" class="form-input" placeholder="ex: Caixa com 6 unidades"></div>
+                <div class="form-group"><label class="form-label">Origem</label><input type="text" name="origin" value="{{ product ? product.origin : '' }}" class="form-input" placeholder="ex: Brasil"></div>
                 <div class="col-span-2 form-group"><label class="form-label">Garantia</label><input type="text" name="warranty" value="{{ product ? product.warranty : '' }}" class="form-input" placeholder="ex: 1 ano contra defeito de fabricação"></div>
+                <div class="form-group"><label class="form-label">Avaliação Média <small class="text-gray-400">(ex: 4.5)</small></label><input type="number" step="0.1" min="1" max="5" name="ratingAverage" value="{{ product ? product.ratingAverage : '' }}" class="form-input"></div>
+                <div class="form-group"><label class="form-label">Nº de Avaliações</label><input type="number" name="ratingCount" value="{{ product ? product.ratingCount : '' }}" class="form-input"></div>
             </div>
         </div>
 

@@ -48,6 +48,9 @@ class Product
     private ?string $summary = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $aboutItems = null; // Bullet list "Sobre este item"
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $benefits = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -85,6 +88,12 @@ class Product
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $origin = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 3, scale: 1, nullable: true)]
+    private ?string $ratingAverage = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $ratingCount = null;
 
     #[ORM\Column]
     private bool $active = true;
@@ -142,6 +151,10 @@ class Product
     #[ORM\OrderBy(['sortOrder' => 'ASC'])]
     private Collection $faqs;
 
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductReview::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['reviewedAt' => 'DESC'])]
+    private Collection $reviews;
+
     #[ORM\ManyToMany(targetEntity: self::class)]
     #[ORM\JoinTable(name: 'product_related')]
     private Collection $relatedProducts;
@@ -152,6 +165,7 @@ class Product
         $this->images = new ArrayCollection();
         $this->variations = new ArrayCollection();
         $this->faqs = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
         $this->relatedProducts = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -188,6 +202,8 @@ class Product
     public function setShortDescription(?string $v): static { $this->shortDescription = $v; return $this; }
     public function getFullDescription(): ?string { return $this->fullDescription; }
     public function setFullDescription(?string $v): static { $this->fullDescription = $v; return $this; }
+    public function getAboutItems(): ?string { return $this->aboutItems; }
+    public function setAboutItems(?string $v): static { $this->aboutItems = $v; return $this; }
     public function getSummary(): ?string { return $this->summary; }
     public function setSummary(?string $v): static { $this->summary = $v; return $this; }
     public function getBenefits(): ?string { return $this->benefits; }
@@ -216,6 +232,10 @@ class Product
     public function setWarranty(?string $v): static { $this->warranty = $v; return $this; }
     public function getOrigin(): ?string { return $this->origin; }
     public function setOrigin(?string $v): static { $this->origin = $v; return $this; }
+    public function getRatingAverage(): ?string { return $this->ratingAverage; }
+    public function setRatingAverage(?string $v): static { $this->ratingAverage = $v; return $this; }
+    public function getRatingCount(): ?int { return $this->ratingCount; }
+    public function setRatingCount(?int $v): static { $this->ratingCount = $v; return $this; }
     public function isActive(): bool { return $this->active; }
     public function setActive(bool $v): static { $this->active = $v; return $this; }
     public function isFeatured(): bool { return $this->isFeatured; }
@@ -250,5 +270,8 @@ class Product
     public function addVariation(ProductVariation $v): static { if (!$this->variations->contains($v)) { $this->variations->add($v); $v->setProduct($this); } return $this; }
     public function getFaqs(): Collection { return $this->faqs; }
     public function addFaq(ProductFaq $f): static { if (!$this->faqs->contains($f)) { $this->faqs->add($f); $f->setProduct($this); } return $this; }
+    public function getReviews(): Collection { return $this->reviews; }
+    public function addReview(ProductReview $r): static { if (!$this->reviews->contains($r)) { $this->reviews->add($r); $r->setProduct($this); } return $this; }
+    public function removeReview(ProductReview $r): static { if ($this->reviews->removeElement($r)) { if ($r->getProduct() === $this) { $r->setProduct(null); } } return $this; }
     public function getRelatedProducts(): Collection { return $this->relatedProducts; }
 }

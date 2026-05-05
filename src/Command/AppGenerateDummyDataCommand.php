@@ -7,6 +7,8 @@ use App\Entity\Brand;
 use App\Entity\Category;
 use App\Entity\ContactMessage;
 use App\Entity\Product;
+use App\Entity\ProductFaq;
+use App\Entity\ProductReview;
 use App\Entity\Representative;
 use App\Entity\Showroom;
 use Doctrine\ORM\EntityManagerInterface;
@@ -49,7 +51,7 @@ class AppGenerateDummyDataCommand extends Command
 
         if ($input->getOption('clean')) {
             $io->info('Limpando dados antigos...');
-            foreach ([ContactMessage::class, Product::class, Category::class, Brand::class, Showroom::class, Representative::class, Banner::class] as $cls) {
+            foreach ([ProductReview::class, ProductFaq::class, ContactMessage::class, Product::class, Category::class, Brand::class, Showroom::class, Representative::class, Banner::class] as $cls) {
                 $this->em->createQuery("DELETE FROM $cls e")->execute();
             }
         }
@@ -193,13 +195,36 @@ class AppGenerateDummyDataCommand extends Command
             }
             $slugsUsed[] = $slug;
 
+            $aboutLines = [
+                "Material resistente e de alta qualidade",
+                "Design ergonômico e funcional",
+                "Fácil de limpar e manter",
+                "Produto 100% testado e aprovado pelo controle de qualidade",
+                "Ideal para uso doméstico e profissional",
+                "Acompanha instruções de uso detalhadas",
+            ];
+            shuffle($aboutLines);
+            $aboutItems = implode("\n", array_slice($aboutLines, 0, rand(4, 6)));
+
+            $ratingAvg = number_format(rand(38, 50) / 10, 1);
+            $ratingCount = rand(12, 2847);
+
             $product = new Product();
             $product->setName($name)
                 ->setSlug($slug)
                 ->setInternalCode($code)
                 ->setSku($code)
                 ->setShortDescription($desc)
-                ->setFullDescription("<p>$desc. Produto de alta qualidade do Grupo Rocie, com acabamento premium e durabilidade garantida.</p>")
+                ->setAboutItems($aboutItems)
+                ->setFullDescription("<p>$desc.</p><p>Produto de alta qualidade do Grupo Rocie, com acabamento premium e durabilidade garantida. Fabricado com materiais selecionados para oferecer o melhor desempenho e longa vida útil.</p>")
+                ->setBenefits("<ul><li>Qualidade superior comprovada</li><li>Durabilidade garantida</li><li>Design moderno e funcional</li></ul>")
+                ->setMaterial(['Plástico ABS', 'Aço Inox', 'Polipropileno', 'Nylon reforçado', 'Alumínio'][rand(0,4)])
+                ->setWeight(rand(100, 1500) . 'g')
+                ->setDimensions(rand(10,40) . 'x' . rand(5,30) . 'x' . rand(3,15) . ' cm')
+                ->setWarranty('12 meses contra defeito de fabricação')
+                ->setOrigin('Brasil')
+                ->setRatingAverage($ratingAvg)
+                ->setRatingCount($ratingCount)
                 ->setMainCategory($categories[$catSlug] ?? null)
                 ->setBrand($brands[array_rand($brands)])
                 ->setActive(true)
@@ -207,6 +232,52 @@ class AppGenerateDummyDataCommand extends Command
                 ->setIsNew(rand(0, 3) === 0)
                 ->setSortOrder(rand(1, 100))
                 ->setMainImage($this->downloadImage('prod_'));
+
+            // FAQs
+            $faqData = [
+                ['Qual é o prazo de garantia?', 'O produto possui 12 meses de garantia contra defeitos de fabricação.'],
+                ['Qual o material utilizado?', 'O produto é fabricado com materiais de alta qualidade, resistentes e duráveis.'],
+                ['Como realizar a limpeza?', 'Limpe com pano úmido e detergente neutro. Evite produtos abrasivos.'],
+                ['O produto é certificado pelo INMETRO?', 'Sim, todos os nossos produtos seguem as normas de segurança brasileiras.'],
+            ];
+            foreach ($faqData as $i => [$q, $a]) {
+                $faq = new ProductFaq();
+                $faq->setQuestion($q)->setAnswer($a)->setSortOrder($i)->setActive(true)->setProduct($product);
+                $this->em->persist($faq);
+            }
+
+            // Reviews
+            $reviewAuthors = [
+                ['Maria S.', 'São Paulo, SP'], ['João P.', 'Rio de Janeiro, RJ'],
+                ['Ana C.', 'Belo Horizonte, MG'], ['Carlos M.', 'Curitiba, PR'],
+                ['Fernanda L.', 'Porto Alegre, RS'], ['Roberto A.', 'Salvador, BA'],
+            ];
+            $reviewTexts = [
+                ['Produto excelente!', 'Chegou rápido e a qualidade superou minhas expectativas. Recomendo muito!'],
+                ['Ótimo custo-benefício', 'Produto de boa qualidade pelo preço. Cumpre bem o que promete.'],
+                ['Muito satisfeita', 'Material resistente e bonito. Já estou usando e adorei.'],
+                ['Recomendo!', 'Comprei para presente e a pessoa adorou. Produto de qualidade.'],
+                ['Superou as expectativas', 'Produto chegou antes do prazo, bem embalado e em perfeito estado.'],
+                ['Bom produto', 'Qualidade ok para o preço. Entrega rápida.'],
+            ];
+            $numReviews = rand(2, 5);
+            for ($r = 0; $r < $numReviews; $r++) {
+                [$aName, $aLoc] = $reviewAuthors[$r % count($reviewAuthors)];
+                [$rTitle, $rBody] = $reviewTexts[$r % count($reviewTexts)];
+                $daysAgo = rand(5, 365);
+                $review = new ProductReview();
+                $review->setAuthorName($aName)
+                    ->setAuthorLocation($aLoc)
+                    ->setRating(rand(3, 5))
+                    ->setTitle($rTitle)
+                    ->setBody($rBody)
+                    ->setVerified(rand(0,1) === 1)
+                    ->setActive(true)
+                    ->setReviewedAt(new \DateTimeImmutable("-{$daysAgo} days"))
+                    ->setProduct($product);
+                $this->em->persist($review);
+            }
+
             $this->em->persist($product);
         }
 
